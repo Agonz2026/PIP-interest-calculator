@@ -3,332 +3,223 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PIP PFS Settlement Matrix</title>
+<title>PIP Statutory Interest Calculator</title>
 <style>
   :root{
     --navy:#1f3864; --navy2:#2e4d80; --blue:#0b5cad; --ink:#1a1a1a;
-    --line:#d8dee9; --inputbg:#eaf1fb; --inputbd:#9cc0ec;
-    --green:#1e7d3a; --greenbg:#d7f0dd; --amber:#9c6500; --amberbg:#ffeeb8;
-    --red:#9c0006; --redbg:#ffd6d6; --muted:#6b7280; --calcbg:#f0f6ff;
+    --line:#d8dee9; --inputbg:#eaf1fb; --inputbd:#9cc0ec; --calcbg:#f0f6ff;
+    --green:#1e7d3a; --greenbg:#e3f6e8; --muted:#6b7280; --amber:#9c6500; --amberbg:#fff6da;
   }
   *{box-sizing:border-box}
-  body{font-family:Arial,Helvetica,sans-serif;color:var(--ink);margin:0;background:#f4f6fa;font-size:14px;line-height:1.45}
-  .wrap{max-width:1450px;margin:0 auto;padding:22px 18px 60px}
-  h1{color:var(--navy);font-size:22px;margin:0 0 2px}
-  .sub{color:var(--red);font-weight:bold;font-size:13px;margin:0 0 14px}
-  .panel{background:#fff;border:1px solid var(--line);border-radius:8px;padding:16px 18px;margin-bottom:18px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
-  .panel h2{color:var(--navy);font-size:15px;margin:0 0 10px}
-  details summary{cursor:pointer;color:var(--navy);font-weight:bold;font-size:15px;outline:none}
+  body{font-family:Arial,Helvetica,sans-serif;color:var(--ink);margin:0;background:#f4f6fa;font-size:14px;line-height:1.5}
+  .wrap{max-width:980px;margin:0 auto;padding:24px 18px 60px}
+  h1{color:var(--navy);font-size:23px;margin:0 0 2px}
+  .sub{color:var(--navy2);font-weight:bold;font-size:13px;margin:0 0 18px}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:8px;padding:18px 20px;margin-bottom:18px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .panel h2{color:var(--navy);font-size:15px;margin:0 0 12px}
+  details summary{cursor:pointer;color:var(--navy);font-weight:bold;font-size:14px;outline:none}
   details p{margin:8px 0;color:#333}
-  .kbd{background:var(--inputbg);border:1px solid var(--inputbd);border-radius:4px;padding:1px 5px;font-family:monospace;font-size:12px}
-  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
-  button{background:var(--navy);color:#fff;border:0;border-radius:6px;padding:8px 14px;font-size:13px;font-weight:bold;cursor:pointer}
+  .grid{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-end}
+  .fld{display:flex;flex-direction:column;gap:4px}
+  .fld label{font-size:12px;font-weight:bold;color:var(--navy)}
+  .fld .help{font-size:11px;color:var(--muted);font-weight:normal;font-style:italic;max-width:240px}
+  .fld input{border:1px solid var(--inputbd);background:#fff;border-radius:6px;padding:8px 10px;font-size:14px;color:var(--blue);font-weight:bold;width:200px}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 0}
+  button{background:var(--navy);color:#fff;border:0;border-radius:6px;padding:9px 15px;font-size:13px;font-weight:bold;cursor:pointer}
   button.sec{background:#fff;color:var(--navy);border:1px solid var(--navy)}
-  button.mini{padding:4px 10px;font-size:12px}
+  button.mini{padding:5px 11px;font-size:12px}
   button:hover{filter:brightness(1.08)}
-  .assump{display:flex;gap:18px;flex-wrap:wrap;align-items:center;font-size:13px}
-  .assump label{color:var(--navy);font-weight:bold}
-  table{border-collapse:collapse;width:100%;font-size:12.5px}
-  .scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
-  th,td{border:1px solid var(--line);padding:5px 6px;text-align:center;white-space:nowrap}
-  thead th{background:var(--navy);color:#fff;font-size:11px;line-height:1.25;vertical-align:middle}
-  .grp-in{background:#11294d}
+  table{border-collapse:collapse;width:100%;font-size:13px}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:center}
+  thead th{background:var(--navy);color:#fff;font-size:12px}
   tbody tr:nth-child(even){background:#fafbfe}
-  input.cell{width:100%;border:1px solid var(--inputbd);background:var(--inputbg);border-radius:4px;padding:4px;font-size:12.5px;text-align:right;color:var(--blue);font-weight:bold;font-family:Arial}
-  input.txt{text-align:left}
-  input.cell:focus{outline:2px solid var(--blue)}
-  td.calc{color:var(--ink);font-variant-numeric:tabular-nums}
-  td.rec{white-space:normal;text-align:left;font-size:11.5px;max-width:200px}
-  .pill{display:inline-block;padding:2px 9px;border-radius:11px;font-weight:bold;font-size:11.5px}
-  .SAFE{background:var(--greenbg);color:var(--green)}
-  .TIGHT{background:var(--amberbg);color:var(--amber)}
-  .FAIL{background:var(--redbg);color:var(--red)}
-  .del{background:#fff;color:var(--red);border:1px solid var(--red);border-radius:5px;padding:2px 8px;font-weight:bold;cursor:pointer;font-size:12px}
-  .note{color:var(--muted);font-size:12px;font-style:italic;margin-top:8px}
-  .legend{font-size:12px;color:var(--muted);margin:6px 0 0}
-  .legend b{color:var(--blue)}
-  /* interest calculator */
-  .calcwrap{background:var(--calcbg);border:1px solid var(--inputbd)}
-  .calcgrid{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}
-  .fld{display:flex;flex-direction:column;gap:3px}
-  .fld label{font-size:11.5px;font-weight:bold;color:var(--navy)}
-  .fld input{border:1px solid var(--inputbd);background:#fff;border-radius:5px;padding:6px 8px;font-size:13px;color:var(--blue);font-weight:bold;width:150px}
-  table.itab{width:auto;min-width:560px}
-  table.itab th{background:var(--navy2);font-size:11px}
-  table.itab input{width:110px;border:1px solid var(--inputbd);background:#fff;border-radius:4px;padding:4px;color:var(--blue);font-weight:bold;text-align:center;font-size:12.5px}
-  .out{display:flex;gap:26px;flex-wrap:wrap;align-items:center;margin-top:14px;padding:12px 16px;background:#fff;border:1px dashed var(--inputbd);border-radius:8px}
-  .out .big{font-size:26px;font-weight:bold;color:var(--green)}
-  .out .lbl{font-size:11.5px;color:var(--muted);font-weight:bold;text-transform:uppercase;letter-spacing:.03em}
-  .ratebox{background:#fff;border:1px solid var(--line);border-radius:6px;padding:8px 12px;font-size:12px;color:#333}
-  @media print{button,.controls,.del{display:none}body{background:#fff}}
+  td input{width:130px;border:1px solid var(--inputbd);background:#fff;border-radius:5px;padding:5px;color:var(--blue);font-weight:bold;text-align:center;font-size:13px}
+  td.num{font-variant-numeric:tabular-nums}
+  .del{background:#fff;color:#9c0006;border:1px solid #9c0006;border-radius:5px;padding:3px 9px;font-weight:bold;cursor:pointer}
+  .totals{display:flex;gap:30px;flex-wrap:wrap;align-items:center;margin-top:16px;padding:16px 20px;background:var(--greenbg);border:1px solid #bfe6c8;border-radius:8px}
+  .totals .lbl{font-size:11px;color:var(--muted);font-weight:bold;text-transform:uppercase;letter-spacing:.04em}
+  .totals .val{font-size:22px;font-weight:bold;color:var(--navy)}
+  .totals .grand{font-size:28px;color:var(--green)}
+  .ratebox{font-size:12px;color:#333;background:#fff;border:1px solid var(--line);border-radius:6px;padding:6px 0}
+  .ratebox table{font-size:11.5px}
+  .ratebox th{background:var(--navy2);font-size:11px}
+  .note{color:var(--muted);font-size:12px;font-style:italic;margin-top:10px}
+  .warn{background:var(--amberbg);border:1px solid #f0d98a;border-radius:6px;padding:10px 14px;font-size:12.5px;color:#5c4500;margin-top:12px}
+  .brand{display:flex;align-items:center;gap:18px;padding:14px 0 16px;border-bottom:3px solid var(--navy);margin-bottom:22px}
+  .brand .logo{max-height:72px;max-width:280px;object-fit:contain}
+  .brand .logo-ph{height:60px;width:150px;border:2px dashed var(--inputbd);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:10px;font-weight:bold;letter-spacing:.08em;text-align:center;padding:4px}
+  .brand .firm{font-size:21px;font-weight:bold;color:var(--navy);line-height:1.2}
+  .brand .tool{font-size:13px;color:var(--navy2);font-weight:bold;margin-top:3px}
+  .brand .stat{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .printonly{display:none}
+  @media print{
+    body{background:#fff;font-size:12px} .controls,.del,button,details{display:none!important}
+    .brand{border-bottom:2px solid #000}
+    .panel{box-shadow:none;border:none;padding:6px 0;margin-bottom:10px}
+    td input{border:none;color:#000;font-weight:normal;width:auto}
+    .fld input{border:none;color:#000;font-weight:normal;padding:0}
+    .printonly{display:block}
+    .wrap{max-width:100%}
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>PIP — Proposal for Settlement (PFS) Strategy Matrix</h1>
-  <p class="sub">New-law cases (no statutory one-way attorney's fees) — Florida §768.79 / Rule 1.442</p>
+  <header class="brand">
+    <img id="logo" class="logo" src="logo.png" alt="The Law Offices of Gonzalez & Associates"
+         onload="document.getElementById('firmName').style.display='none';"
+         onerror="this.style.display='none';document.getElementById('logoPh').style.display='flex';">
+    <div id="logoPh" class="logo-ph" style="display:none">FIRM&nbsp;LOGO<br>(add logo.png)</div>
+    <div class="brandtext">
+      <div class="firm" id="firmName">The Law Offices of Gonzalez &amp; Associates</div>
+      <div class="tool">PIP Statutory Interest Calculator</div>
+      <div class="stat">Florida overdue PIP benefits — Fla. Stat. §627.736(4)(d) &amp; §55.03 · Presuit use</div>
+    </div>
+  </header>
 
   <div class="panel">
     <details open>
-      <summary>How this works — the 80% principle (click to collapse)</summary>
-      <p><b>Why it matters:</b> For new-law PIP cases (HB 837, policies issued/renewed on or after 3/24/2023), the one-way attorney-fee statute no longer guarantees fees to a prevailing insured. A plaintiff's <b>§768.79 Proposal for Settlement is the primary path to fees</b>, so the offer amount has to be set deliberately.</p>
-      <p><b>The rule:</b> If the defendant rejects your proposal and you obtain a judgment <b>at least 25% more than the offer</b>, you recover fees and costs incurred <i>from the date the offer was served.</i></p>
-      <p><b>The math:</b> "Judgment ≥ 1.25 × Offer" is the same as <b>"Offer ≤ 80% of the expected judgment."</b> So 80% of your expected judgment is the <i>ceiling</i> for a safe PFS — shown as <span class="kbd">Max Safe Offer</span>. The <span class="kbd">Recommended Offer</span> drops below that by your <b>safety buffer</b> so you don't have to win to the penny to trigger fees. Keep <b>Threshold Status</b> on <span class="pill SAFE">SAFE</span>; <span class="pill FAIL">FAIL</span> means the offer is too high to ever earn fees.</p>
-      <p class="legend"><b>Blue cells</b> = your inputs &nbsp;•&nbsp; black cells = auto-calculated &nbsp;•&nbsp; <b>EV — Litigate</b> = P(win) × (Judgment + recoverable PFS fees) − P(lose) × your unrecoverable trial costs.</p>
-      <p class="note">Internal decision-support only — not legal advice. Verify the current statute, Rule 1.442, good-faith/specificity case law in your venue, and that the policy is genuinely post-3/24/2023 before serving any proposal.</p>
+      <summary>How to use this (click to collapse)</summary>
+      <p><b>1.</b> Enter the <b>overdue benefit amount</b> (the unpaid PIP principal you're claiming).</p>
+      <p><b>2.</b> Enter the <b>date interest begins</b> — the date the insurer was furnished written notice of the amount of the covered loss. (PIP benefits are "overdue" 30 days after notice, but §627.736(4)(d) calculates interest from the date of that written notice.)</p>
+      <p><b>3.</b> Enter the <b>through date</b> (today, or your projected demand/payment date).</p>
+      <p><b>4.</b> Click <b>Auto-build periods.</b> Interest is <b>simple</b> (not compounded) and the §55.03 rate is set for the quarter the payment became overdue, then <b>re-adjusts every January 1</b> until paid — the tool splits the timeline at each Jan 1 and fills in the correct rate automatically. You can override any rate.</p>
+      <p><b>5.</b> Read the total at the bottom, or hit <b>Print / Save as PDF</b> to attach the breakdown to a demand.</p>
     </details>
   </div>
 
-  <!-- ===== Statutory Interest Calculator ===== -->
-  <div class="panel calcwrap">
-    <h2>Statutory Interest Calculator — Fla. Stat. §627.736(4)(d) / §55.03</h2>
-    <div class="calcgrid">
-      <div class="fld"><label>Overdue principal ($)</label><input id="ip" value="4200" oninput="icalc()"></div>
-      <div class="fld"><label>Date payment overdue / notice</label><input id="istart" type="date" value="2025-09-01" oninput="resyncFirst();icalc()"></div>
-      <div class="fld"><label>Calculate through (judgment date)</label><input id="ithrough" type="date" value="2026-06-10" oninput="resyncLast();icalc()"></div>
-      <div style="align-self:flex-end"><button class="mini" onclick="resetPeriods()">Reset to single span</button> <button class="mini sec" onclick="addPeriod()">+ rate period</button></div>
-    </div>
-    <div class="scroll" style="display:inline-block">
-      <table class="itab">
-        <thead><tr><th>From</th><th>To</th><th>Annual Rate %</th><th>Days</th><th>Interest ($)</th><th></th></tr></thead>
-        <tbody id="iperiods"></tbody>
-      </table>
-    </div>
-    <div class="out">
-      <div><div class="lbl">Total days</div><div class="big" id="idays" style="color:var(--navy);font-size:20px">—</div></div>
-      <div><div class="lbl">Statutory interest</div><div class="big" id="iout">$0</div></div>
-      <div style="font-size:12.5px;color:#333">Simple interest = principal × rate × (days ÷ 365), summed across periods. <b>Copy this figure into the "Statutory Interest" column</b> for the matching case below.</div>
-    </div>
-    <div class="ratebox" style="margin-top:12px">
-      <b>Rate guidance:</b> Use the §55.03 rate for the quarter the payment became <i>overdue</i>, then split into a new period each <b>January 1</b> (the PIP rate re-adjusts annually until paid). Recent rates: <b>Q2 2026 = 8.25%</b>, <b>Q1 2026 = 8.44%</b>. Full historical table at the Florida CFO. Use the contract rate instead if it's higher.
-    </div>
-  </div>
-
-  <!-- ===== Assumptions ===== -->
   <div class="panel">
-    <div class="assump">
-      <span><label>§768.79 multiplier:</label> <input id="mult" class="cell" style="width:64px" value="1.25"></span>
-      <span><label>Default safety buffer:</label> <input id="buf" class="cell" style="width:64px" value="10"> %</span>
-      <span><label>Days before PFS may be served:</label> <input id="days" class="cell" style="width:64px" value="90"></span>
-      <span><label>PIP coverage cap:</label> <input id="cap" class="cell" style="width:80px" value="10000"></span>
+    <div class="grid">
+      <div class="fld"><label>Claim / claimant reference</label><input id="ref" placeholder="e.g. Smith v. Apex Casualty" style="width:260px;text-align:left"></div>
+      <div class="fld"><label>Overdue benefit amount ($)</label><input id="principal" value="3500" oninput="render()"></div>
     </div>
-    <p class="legend">These drive every row. Benefits in controversy can't exceed the cap.</p>
+    <div class="grid" style="margin-top:14px">
+      <div class="fld"><label>Date interest begins</label><input id="start" type="date" value="2025-04-15" oninput="render()"><span class="help">Date insurer furnished written notice of the covered loss (§627.736(4)(d)).</span></div>
+      <div class="fld"><label>Calculate interest through</label><input id="through" type="date" value="2026-06-10" oninput="render()"><span class="help">Today, or projected demand / payment / judgment date.</span></div>
+    </div>
+    <div class="controls">
+      <button onclick="autobuild()">Auto-build periods</button>
+      <button class="sec mini" onclick="addRow()">+ add period</button>
+      <button class="sec mini" onclick="window.print()">Print / Save as PDF</button>
+      <button class="sec mini" onclick="exportCSV()">Export CSV</button>
+    </div>
   </div>
 
-  <div class="controls">
-    <button onclick="addRow()">+ Add case</button>
-    <button class="sec" onclick="window.print()">Print / Save as PDF</button>
-    <button class="sec" onclick="exportCSV()">Export CSV</button>
-  </div>
-
-  <div class="scroll">
-    <table id="matrix">
-      <thead>
-        <tr>
-          <th class="grp-in">Case /<br>Claim Ref</th>
-          <th class="grp-in">Date Suit<br>Served</th>
-          <th>Earliest PFS<br>Service Date</th>
-          <th class="grp-in">PIP Benefits in<br>Controversy ($)</th>
-          <th class="grp-in">Statutory<br>Interest ($)</th>
-          <th>Expected<br>Judgment J ($)</th>
-          <th class="grp-in">P(Win at<br>Trial) %</th>
-          <th>Risk-Adj.<br>Judgment ($)</th>
-          <th>Max Safe Offer<br>J÷1.25 ($)</th>
-          <th class="grp-in">Safety<br>Buffer %</th>
-          <th>Recommended<br>PFS Offer ($)</th>
-          <th class="grp-in">Actual PFS<br>Offer ($)</th>
-          <th>Judgment to<br>Beat Offer ($)</th>
-          <th>Cushion vs.<br>Exp. Judgment</th>
-          <th>Threshold<br>Status</th>
-          <th class="grp-in">Proj. Recov.<br>Fees/Costs ($)</th>
-          <th class="grp-in">Your Costs<br>Thru Trial ($)</th>
-          <th>EV — Litigate<br>after PFS ($)</th>
-          <th>EV — Settle<br>at Offer ($)</th>
-          <th>Recommendation</th>
-          <th></th>
-        </tr>
-      </thead>
+  <div class="panel">
+    <h2>Interest periods</h2>
+    <table>
+      <thead><tr><th>From</th><th>To</th><th>Annual Rate %</th><th>Days</th><th>Interest ($)</th><th class="del-col"></th></tr></thead>
       <tbody id="rows"></tbody>
     </table>
-  </div>
-  <p class="note">Leave "Actual PFS Offer" blank to just see the recommended number; fill it in to test a specific offer against the 25% threshold. Use the interest calculator above to fill the Statutory Interest column.</p>
-
-  <div class="panel" style="margin-top:22px">
-    <h2>Quick-reference tiers — suggested posture by amount in controversy</h2>
-    <div class="scroll" style="display:inline-block">
-      <table class="tierwrap">
-        <thead><tr>
-          <th class="grp-in">Benefits Band</th><th>Rep. Expected<br>Judgment ($)</th>
-          <th>Max Safe Offer<br>(80%) ($)</th><th>Recommended<br>(10% buffer) ($)</th>
-          <th>Min Judgment to<br>Keep Fees ($)</th><th>Strategic Notes</th>
-        </tr></thead>
-        <tbody id="tiers"></tbody>
-      </table>
+    <div class="totals">
+      <div><div class="lbl">Days overdue</div><div class="val" id="tDays">—</div></div>
+      <div><div class="lbl">Principal</div><div class="val" id="tPrin">$0</div></div>
+      <div><div class="lbl">Statutory interest</div><div class="val" id="tInt">$0</div></div>
+      <div><div class="lbl">Total (principal + interest)</div><div class="grand" id="tGrand">$0</div></div>
     </div>
-    <p class="note">Illustrative only — the matrix above computes case-specific numbers. PIP benefits cap at $10,000, so expected judgment = disputed benefits + statutory interest.</p>
+    <div class="warn">
+      <b>Verify before relying on it:</b> rates are simple interest per §55.03 as published by the Florida CFO (table fetched June 2026). Confirm the rate for the quarter the payment became <i>overdue</i> and any quarter after the table's last entry against the official CFO page. Use the contract rate if it is higher than the statutory rate. Not legal advice.
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>§55.03 rate reference (recent quarters)</h2>
+    <div class="ratebox"><div id="rateref"></div></div>
+    <p class="note">Source: Florida CFO, Judgment Interest Rates (myfloridacfo.com). The PIP rate is keyed to the quarter the payment became overdue, then adjusts each January 1.</p>
   </div>
 </div>
 
 <script>
-const fmt=(n)=> (n==null||isNaN(n))?"":"$"+Math.round(n).toLocaleString("en-US");
-const pct=(n)=> (n==null||isNaN(n))?"":(n*100).toFixed(1)+"%";
+// Official §55.03 rates (effective date -> annual %), Florida CFO, fetched 2026-06-10
+const RATES=[
+ ["2026-07-01",8.06],["2026-04-01",8.25],["2026-01-01",8.44],
+ ["2025-10-01",8.65],["2025-07-01",8.90],["2025-04-01",9.15],["2025-01-01",9.38],
+ ["2024-10-01",9.50],["2024-07-01",9.46],["2024-04-01",9.34],["2024-01-01",9.09],
+ ["2023-10-01",8.54],["2023-07-01",7.69],["2023-04-01",6.58],["2023-01-01",5.52],
+ ["2022-10-01",4.75],["2022-07-01",4.34],["2022-04-01",4.25],["2022-01-01",4.25]
+];
+const fmt=(n)=> (n==null||isNaN(n))?"":"$"+n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
 const num=(v)=>{const x=parseFloat(String(v).replace(/[^0-9.\-]/g,""));return isNaN(x)?0:x;};
-const daysBetween=(a,b)=>{if(!a||!b)return 0;const d=(new Date(b)-new Date(a))/86400000;return d>0?Math.round(d):0;};
+const days=(a,b)=>{if(!a||!b)return 0;const d=Math.round((new Date(b)-new Date(a))/86400000);return d>0?d:0;};
+function rateFor(dateStr){ // most recent effective rate on/before dateStr
+  for(const [eff,r] of RATES){ if(dateStr>=eff) return r; }
+  return RATES[RATES.length-1][1];
+}
 
-/* ---------- Statutory Interest Calculator ---------- */
-function periodRow(from,to,rate){
+function rowHTML(from,to,rate){
   return `<tr>
-    <td><input type="date" class="ip-from" value="${from||''}" oninput="icalc()"></td>
-    <td><input type="date" class="ip-to" value="${to||''}" oninput="icalc()"></td>
-    <td><input class="ip-rate" value="${rate??''}" oninput="icalc()"></td>
-    <td class="ip-days">—</td><td class="ip-int">—</td>
-    <td><button class="del" onclick="this.closest('tr').remove();icalc()">✕</button></td>
+    <td><input type="date" class="r-from" value="${from||''}" oninput="render()"></td>
+    <td><input type="date" class="r-to" value="${to||''}" oninput="render()"></td>
+    <td><input class="r-rate" value="${rate??''}" oninput="render()"></td>
+    <td class="num r-days">—</td><td class="num r-int">—</td>
+    <td class="del-col"><button class="del" onclick="this.closest('tr').remove();render()">✕</button></td>
   </tr>`;
 }
-function addPeriod(){
-  const s=document.getElementById('istart').value, t=document.getElementById('ithrough').value;
-  document.getElementById('iperiods').insertAdjacentHTML('beforeend',periodRow(s,t,8.25));icalc();
+function addRow(from,to,rate){document.getElementById('rows').insertAdjacentHTML('beforeend',rowHTML(from,to,rate));render();}
+
+function autobuild(){
+  const s=document.getElementById('start').value, t=document.getElementById('through').value;
+  document.getElementById('rows').innerHTML="";
+  if(!s||!t||new Date(t)<=new Date(s)){render();return;}
+  // boundaries: start, each Jan 1 between, through
+  const bounds=[s];
+  let y=new Date(s).getUTCFullYear()+1;
+  const endY=new Date(t).getUTCFullYear();
+  for(;y<=endY;y++){const jan=`${y}-01-01`; if(jan>s && jan<t) bounds.push(jan);}
+  bounds.push(t);
+  for(let i=0;i<bounds.length-1;i++){
+    const from=bounds[i], to=bounds[i+1];
+    // first segment: rate for quarter payment became overdue; later: Jan-1 rate of that year
+    const rate = (i===0) ? rateFor(from) : rateFor(`${new Date(from).getUTCFullYear()}-01-01`);
+    document.getElementById('rows').insertAdjacentHTML('beforeend',rowHTML(from,to,rate));
+  }
+  render();
 }
-function resetPeriods(){
-  const s=document.getElementById('istart').value, t=document.getElementById('ithrough').value;
-  document.getElementById('iperiods').innerHTML=periodRow(s,t,8.25);icalc();
-}
-function resyncFirst(){const r=document.querySelector('#iperiods .ip-from'); if(r)r.value=document.getElementById('istart').value;}
-function resyncLast(){const rs=document.querySelectorAll('#iperiods .ip-to'); if(rs.length)rs[rs.length-1].value=document.getElementById('ithrough').value;}
-function icalc(){
-  const P=num(document.getElementById('ip').value);
-  let totDays=0, totInt=0;
-  document.querySelectorAll('#iperiods tr').forEach(tr=>{
-    const from=tr.querySelector('.ip-from').value, to=tr.querySelector('.ip-to').value;
-    const rate=num(tr.querySelector('.ip-rate').value)/100;
-    const d=daysBetween(from,to);
+
+function render(){
+  const P=num(document.getElementById('principal').value);
+  let totDays=0,totInt=0;
+  document.querySelectorAll('#rows tr').forEach(tr=>{
+    const from=tr.querySelector('.r-from').value, to=tr.querySelector('.r-to').value;
+    const rate=num(tr.querySelector('.r-rate').value)/100;
+    const d=days(from,to);
     const intr=P*rate*d/365;
-    tr.querySelector('.ip-days').textContent=d?d.toLocaleString():"—";
-    tr.querySelector('.ip-int').textContent=fmt(intr);
+    tr.querySelector('.r-days').textContent=d?d.toLocaleString():"—";
+    tr.querySelector('.r-int').textContent=fmt(intr);
     totDays+=d; totInt+=intr;
   });
-  document.getElementById('idays').textContent=totDays?totDays.toLocaleString():"—";
-  document.getElementById('iout').textContent=fmt(totInt);
-}
-
-/* ---------- Settlement Matrix ---------- */
-const examples=[
- ["PIP-2401 Diaz","2026-01-12",1800,95,85,10,1380,6500,4000],
- ["PIP-2402 Nguyen","2026-02-03",4200,260,80,10,3200,11000,7000],
- ["PIP-2403 Pierre","2026-02-20",6800,480,70,10,5100,14000,9500],
- ["PIP-2404 Romero","2026-03-05",8900,720,65,15,6200,18000,13000],
- ["PIP-2405 Clarke","2026-03-18",9800,880,60,15,7000,22000,16000]
-];
-const map={ref:0,date:1,ben:2,int:3,pwin:4,buf:5,offer:6,recov:7,cost:8};
-
-function rowHTML(d){
- d=d||["","","","","","","","",""];
- const v=(k)=>d[map[k]];
- const inp=(k,cls,extra)=>`<input class="cell ${cls||''}" data-k="${k}" value="${v(k)??''}" oninput="recalc()" ${extra||''}>`;
- const dt=`<input class="cell txt" data-k="date" type="date" value="${v('date')||''}" oninput="recalc()">`;
- return `<tr>
-  <td>${inp('ref','txt')}</td>
-  <td>${dt}</td>
-  <td class="calc" data-o="earliest"></td>
-  <td>${inp('ben','','')}</td>
-  <td>${inp('int')}</td>
-  <td class="calc" data-o="J"></td>
-  <td>${inp('pwin')}</td>
-  <td class="calc" data-o="radj"></td>
-  <td class="calc" data-o="maxsafe"></td>
-  <td>${inp('buf')}</td>
-  <td class="calc" data-o="rec"></td>
-  <td>${inp('offer')}</td>
-  <td class="calc" data-o="need"></td>
-  <td class="calc" data-o="cushion"></td>
-  <td class="calc" data-o="status"></td>
-  <td>${inp('recov')}</td>
-  <td>${inp('cost')}</td>
-  <td class="calc" data-o="evlit"></td>
-  <td class="calc" data-o="evset"></td>
-  <td class="calc rec" data-o="recm"></td>
-  <td><button class="del" onclick="this.closest('tr').remove();recalc()">✕</button></td>
- </tr>`;
-}
-function addRow(d){document.getElementById('rows').insertAdjacentHTML('beforeend',rowHTML(d));recalc();}
-
-function recalc(){
- const mult=num(document.getElementById('mult').value)||1.25;
- const defBuf=num(document.getElementById('buf').value)/100;
- const pfsDays=num(document.getElementById('days').value)||90;
- const cap=num(document.getElementById('cap').value)||10000;
- document.querySelectorAll('#rows tr').forEach(tr=>{
-   const g=(k)=>tr.querySelector(`[data-k="${k}"]`).value;
-   const benEl=tr.querySelector('[data-k="ben"]');
-   let ben=num(benEl.value);
-   if(ben>cap){ben=cap;benEl.value=cap;}            // enforce PIP cap
-   const int=num(g('int'));
-   const pwin=num(g('pwin'))/100;
-   let buf=g('buf')===''?defBuf:num(g('buf'))/100;
-   const offer=num(g('offer'));
-   const recov=num(g('recov')),cost=num(g('cost'));
-   const J=ben+int;
-   const radj=J*pwin;
-   const maxsafe=J/mult;
-   const rec=maxsafe*(1-buf);
-   const need=offer*mult;
-   const cushion=offer>0?J/offer-1:null;
-   let status="";
-   if(offer>0){status = J<offer*mult ? "FAIL" : (cushion<0.35 ? "TIGHT" : "SAFE");}
-   const evlit=offer>0?pwin*(J+recov)-(1-pwin)*cost:null;
-   const evset=offer>0?offer:null;
-   let recm="";
-   if(offer>0){
-     if(status==="FAIL") recm="Offer too high — drop below "+fmt(maxsafe);
-     else if(evlit>evset) recm="PFS leverage favors trial";
-     else recm="Settle at/near offer";
-   }
-   let earliest="";
-   const dv=g('date');
-   if(dv){const dd=new Date(dv);dd.setDate(dd.getDate()+pfsDays);earliest=dd.toISOString().slice(0,10);}
-   const set=(o,val,html)=>{const c=tr.querySelector(`[data-o="${o}"]`); if(html){c.innerHTML=val;}else{c.textContent=val;}};
-   set('earliest',earliest);
-   set('J',fmt(J));set('radj',fmt(radj));set('maxsafe',fmt(maxsafe));set('rec',fmt(rec));
-   set('need',offer>0?fmt(need):"");set('cushion',cushion==null?"":pct(cushion));
-   set('status', status?`<span class="pill ${status}">${status}</span>`:"", true);
-   set('evlit',evlit==null?"":fmt(evlit));set('evset',evset==null?"":fmt(evset));
-   set('recm',recm);
- });
-}
-
-const tierData=[
- ["Under $1,000",950,"Marginal. Without fee-shifting the economics are thin — confirm it's worth pursuing before serving."],
- ["$1,000 – $3,000",2200,"Common soft-tissue denial range. Keep the offer comfortably under the ceiling so a partial verdict still clears 25%."],
- ["$3,000 – $6,000",4800,"Disputed diagnostics / reduced payments. Verdicts less predictable — consider a 10–15% buffer."],
- ["$6,000 – $10,000 (cap)",8500,"Larger treatment / near policy limits. Fee recovery via PFS becomes meaningful relative to benefits — set the offer deliberately and weigh a wider buffer."]
-];
-function renderTiers(){
- const mult=num(document.getElementById('mult').value)||1.25; const b=0.10;
- document.getElementById('tiers').innerHTML=tierData.map(([band,ej,note])=>{
-   const ceil=ej/mult, rec=ceil*(1-b), min=rec*mult;
-   return `<tr><td style="text-align:left">${band}</td><td>${fmt(ej)}</td><td>${fmt(ceil)}</td><td>${fmt(rec)}</td><td>${fmt(min)}</td><td style="text-align:left;white-space:normal">${note}</td></tr>`;
- }).join("");
+  document.getElementById('tDays').textContent=totDays?totDays.toLocaleString():"—";
+  document.getElementById('tPrin').textContent=fmt(P);
+  document.getElementById('tInt').textContent=fmt(totInt);
+  document.getElementById('tGrand').textContent=fmt(P+totInt);
 }
 
 function exportCSV(){
- const head=["Case Ref","Date Served","Earliest PFS","Benefits","Interest","Expected Judgment","P(Win)%","Risk-Adj","Max Safe Offer","Buffer%","Recommended Offer","Actual Offer","Judgment to Beat","Cushion%","Status","Recov Fees","Your Costs","EV Litigate","EV Settle","Recommendation"];
- const rows=[head];
- document.querySelectorAll('#rows tr').forEach(tr=>{
-   const g=(k)=>{const e=tr.querySelector(`[data-k="${k}"]`);return e?e.value:"";};
-   const o=(k)=>{const e=tr.querySelector(`[data-o="${k}"]`);return e?e.textContent:"";};
-   rows.push([g('ref'),g('date'),o('earliest'),g('ben'),g('int'),o('J'),g('pwin'),o('radj'),o('maxsafe'),g('buf'),o('rec'),g('offer'),o('need'),o('cushion'),o('status'),g('recov'),g('cost'),o('evlit'),o('evset'),o('recm')]);
- });
- const csv=rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(",")).join("\n");
- const a=document.createElement('a');
- a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
- a.download="PIP_PFS_Matrix.csv";a.click();
+  const ref=document.getElementById('ref').value;
+  const rows=[["Claim",ref],["Principal",document.getElementById('principal').value],[],["From","To","Rate %","Days","Interest"]];
+  document.querySelectorAll('#rows tr').forEach(tr=>{
+    rows.push([tr.querySelector('.r-from').value,tr.querySelector('.r-to').value,tr.querySelector('.r-rate').value,tr.querySelector('.r-days').textContent,tr.querySelector('.r-int').textContent]);
+  });
+  rows.push([]);
+  rows.push(["Total days",document.getElementById('tDays').textContent]);
+  rows.push(["Total interest",document.getElementById('tInt').textContent]);
+  rows.push(["Total principal+interest",document.getElementById('tGrand').textContent]);
+  const csv=rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="PIP_interest.csv";a.click();
 }
 
-['mult','buf','days','cap'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{recalc();renderTiers();}));
-resetPeriods();
-examples.forEach(e=>addRow(e));
-renderTiers();
-recalc();
+function renderRef(){
+  let h='<table><thead><tr><th>Effective</th><th>Rate</th><th>Effective</th><th>Rate</th></tr></thead><tbody>';
+  for(let i=0;i<RATES.length;i+=2){
+    const a=RATES[i], b=RATES[i+1];
+    h+=`<tr><td>${a[0]}</td><td>${a[1].toFixed(2)}%</td>`+(b?`<td>${b[0]}</td><td>${b[1].toFixed(2)}%</td>`:'<td></td><td></td>')+'</tr>';
+  }
+  h+='</tbody></table>';
+  document.getElementById('rateref').innerHTML=h;
+}
+
+renderRef();
+autobuild();
 </script>
 </body>
 </html>
